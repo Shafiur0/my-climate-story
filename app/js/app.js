@@ -53,6 +53,7 @@
     bn: {
       'nav.explore': 'এক্সপ্লোর', 'nav.trend': 'ট্রেন্ড ল্যাব', 'nav.quiz': 'কুইজ',
       'nav.act': 'পদক্ষেপ', 'nav.teach': 'শিক্ষক', 'nav.method': 'পদ্ধতি', 'nav.start': 'শুরু',
+      'nav.lite': 'কম-ডেটা মোড',
 
       'hero.eyebrow': 'নাসা স্পেস অ্যাপস ২০২৬ · দ্য নেক্সট ফ্রন্টিয়ার',
       'hero.challenge': 'চ্যালেঞ্জ · বি অ্যান আর্থ সিস্টেম ট্রেন্ড ডিটেকটিভ',
@@ -368,15 +369,29 @@
     const lt = $('#langToggle');
     lt.addEventListener('click', () => applyLang(lang === 'en' ? 'bn' : 'en'));
 
-    const lite = $('#liteToggle');
-    lite.addEventListener('click', () => {
-      const on = document.body.classList.toggle('lite');
-      lite.setAttribute('aria-pressed', on ? 'true' : 'false');
-      toast(on ? 'Low-data mode on — imagery reduced to 320 px' : 'Low-data mode off');
-      if (explore.ready && explore.story) renderSlider(explore.story);
+    // Two lite toggles exist: one in the bar, one in the mobile menu (shown on tiny screens).
+    ['#liteToggle', '#menuLite'].forEach(sel => {
+      const el = $(sel);
+      if (!el) return;
+      el.addEventListener('click', () => {
+        setLite(!document.body.classList.contains('lite'));
+        if (sel === '#menuLite') closeMenu();
+      });
     });
 
     bindNav(document);
+  }
+
+  function setLite(on) {
+    document.body.classList.toggle('lite', on);
+    ['#liteToggle', '#menuLite'].forEach(sel => {
+      const el = $(sel);
+      if (el) el.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const st = $('#mlState');
+    if (st) st.textContent = on ? 'On' : 'Off';
+    toast(on ? 'Low-data mode on — imagery reduced to 320 px' : 'Low-data mode off');
+    if (explore.ready && explore.story) renderSlider(explore.story);
   }
 
   function closeMenu() {

@@ -224,6 +224,9 @@ input{font:inherit;color:inherit}
 .burger[aria-expanded="true"] span:first-child{transform:translateY(3.3px) rotate(45deg)}
 .burger[aria-expanded="true"] span:last-child{transform:translateY(-3.3px) rotate(-45deg)}
 
+/* low-data toggle inside the mobile menu (the bar button is hidden on tiny screens) */
+.menu-lite{display:none}
+
 /* ── hero tags ──────────────────────────────────────────────── */
 .hero-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
 .htag{
@@ -1104,6 +1107,10 @@ body.lite *{animation-duration:.001s!important;transition-duration:.12s!importan
     align-items:stretch;gap:2px;padding:14px 20px 22px;margin:0;
     background:rgba(5,8,16,.97);backdrop-filter:blur(24px);
     border-bottom:1px solid var(--line);
+    box-shadow:0 24px 40px -20px rgba(0,0,0,.85);
+    max-height:calc(100vh - 66px);
+    max-height:calc(100dvh - 66px);
+    overflow-y:auto;overscroll-behavior:contain;
   }
   .nav-links.open a{padding:13px 12px;font-size:15px;border-radius:10px}
   .nav-links.open a::after{display:none}
@@ -1186,9 +1193,21 @@ body.lite *{animation-duration:.001s!important;transition-duration:.12s!importan
 
 @media (max-width:620px){
   .brand-text em{display:none}
-  .nav{padding:0 16px;height:64px}
-  .nav.is-stuck{height:60px}
+  /* compact the bar so the burger never gets pushed off-screen */
+  .nav{gap:8px;padding:0 13px;height:62px}
+  .nav.is-stuck{height:58px}
   .nav-cta{display:none}
+  .brand{gap:9px;flex:1 1 auto;min-width:0;overflow:hidden}
+  .brand-mark{width:30px;height:30px}
+  .brand-text{min-width:0;overflow:hidden}
+  .brand-text strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-actions{gap:5px;flex:none}
+  .lt-opt{padding:5px 9px;font-size:10px}
+  .icon-btn{width:34px;height:34px;border-radius:10px}
+  .icon-btn svg{width:16px;height:16px}
+  .burger{width:34px;height:34px;border-radius:10px}
+  .nav-links.open{top:62px;padding:12px 14px 18px;max-height:calc(100vh - 62px);max-height:calc(100dvh - 62px)}
+  .nav.is-stuck .nav-links.open{top:58px;max-height:calc(100vh - 58px);max-height:calc(100dvh - 58px)}
   .hero h1{font-size:2.28rem;letter-spacing:-.035em}
   .hero h1 br{display:none}
   .hero-stats dt{font-size:1.05rem}
@@ -1224,6 +1243,32 @@ body.lite *{animation-duration:.001s!important;transition-duration:.12s!importan
   .ai-block,.sub-block,.ds-block{padding:18px;margin-bottom:30px}
   .foot-event{flex-direction:column;align-items:flex-start;gap:4px}
   .foot-event i{display:none}
+}
+
+@media (max-width:380px){
+  #liteToggle{display:none}
+  .nav{padding:0 11px;gap:6px}
+  .brand{gap:7px}
+  .brand-mark{width:27px;height:27px}
+  .brand-text strong{font-size:13px}
+  .lt-opt{padding:4px 8px;font-size:9.5px}
+
+  /* …and reappears inside the menu, so low-data mode is never unreachable */
+  .nav-links.open .menu-lite{
+    display:flex;align-items:center;gap:10px;
+    margin-top:8px;padding:13px 12px;border-radius:10px;
+    border:1px solid var(--line);background:rgba(255,255,255,.04);
+    font-family:var(--f-body);font-size:14px;color:var(--muted);
+  }
+  .nav-links.open .menu-lite svg{width:16px;height:16px;flex:none;opacity:.8}
+  .nav-links.open .menu-lite .ml-state{
+    margin-left:auto;font-family:var(--f-mono);font-size:9.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+  }
+  .nav-links.open .menu-lite[aria-pressed="true"]{
+    color:var(--gold);border-color:rgba(255,200,97,.4);background:rgba(255,200,97,.08);
+  }
+  .nav-links.open .menu-lite[aria-pressed="true"] .ml-state{color:var(--gold)}
 }
 
 @media (prefers-reduced-motion:reduce){

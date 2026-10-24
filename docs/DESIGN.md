@@ -112,6 +112,7 @@ section has one. Keep that rhythm.
 | Nav | `.nav` | fixed, 76 px → 66 px on scroll, glass blur when stuck |
 | Brand | `.brand`, `.brand-mark` | inline SVG, no image request |
 | Language toggle | `.lang-toggle`, `.lt-thumb` | sliding pill, `data-lang` on the button |
+| Menu low-data row | `.menu-lite` | only inside the open menu at ≤380px, mirrors `#liteToggle` |
 | Buttons | `.btn` + `--primary` / `--ghost` / `--outline` / `-sm` / `-lg` | primary has a shine sweep on hover |
 | Eyebrow | `.eyebrow`, `.eyebrow-line` | the section signature |
 | Chip / badge | `.chip`, `.badge`, `.htag` | mono, uppercase, 7 px radius |
