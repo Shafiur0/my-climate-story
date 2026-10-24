@@ -178,6 +178,23 @@ climate misinformation gets shipped.
 
 The site is static. Publish `app/` — nothing else.
 
+### First publish to GitHub
+
+One-time setup. Requires the GitHub CLI (`gh auth login` once, then it persists).
+
+```bash
+gh repo create my-climate-story --public --source=. --remote=origin --push
+```
+
+That creates the repo, adds `origin`, and pushes `main` in one step. If the repo already exists:
+
+```bash
+git remote add origin https://github.com/<user>/my-climate-story.git
+git push -u origin main
+```
+
+The repo must be **public** — judges need to open it without a login.
+
 ### Current deployment
 
 | | |
