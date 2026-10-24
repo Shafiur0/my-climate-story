@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Climate Story — NASA Space Apps Challenge 2026</title>
+<meta name="description" content="Pick any place on Earth and watch four decades of NASA satellite data tell you what changed there — the river, the heat, the rain — in plain language.">
+<meta name="theme-color" content="#04060d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23070b16' stroke='%232ee6c5' stroke-width='2'/><ellipse cx='16' cy='16' rx='14' ry='6' fill='none' stroke='%23ff7a45' stroke-width='1.5'/></svg>">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<canvas id="starfield" aria-hidden="true"></canvas>
+<div class="scroll-progress" aria-hidden="true"><i id="scrollBar"></i></div>
+
+<!-- ══════════════════════════ NAV ══════════════════════════ -->
+<header class="nav" id="nav">
+  <a class="brand" data-view="home" href="#" aria-label="My Climate Story home">
+    <span class="brand-mark">
+      <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="11" stroke="currentColor" stroke-width="1.6" opacity=".9"/>
+        <ellipse cx="20" cy="20" rx="18" ry="7" stroke="url(#bg1)" stroke-width="1.5" transform="rotate(-24 20 20)"/>
+        <circle cx="33.5" cy="12.5" r="2.4" fill="#ff7a45"/>
+        <path d="M11 24.5c3.4-2.6 6.4-1.1 9.6-3.4 2.9-2.1 4.6-5.4 8.4-5.6" stroke="#2ee6c5" stroke-width="1.6" stroke-linecap="round"/>
+        <defs><linearGradient id="bg1" x1="2" y1="20" x2="38" y2="20"><stop stop-color="#2ee6c5"/><stop offset="1" stop-color="#8b7cf6"/></linearGradient></defs>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <strong>My Climate Story</strong>
+      <em>Delta Detectives · NASA Space Apps 2026</em>
+    </span>
+  </a>
+
+  <nav class="nav-links" id="navLinks" aria-label="Main">
+    <a href="#" data-view="explore" data-i18n="nav.explore">Explore</a>
+    <a href="#" data-view="trend" data-i18n="nav.trend">Trend Lab</a>
+    <a href="#" data-view="quiz" data-i18n="nav.quiz">Quiz</a>
+    <a href="#" data-view="act" data-i18n="nav.act">Take action</a>
+    <a href="#" data-view="teach" data-i18n="nav.teach">Teachers</a>
+    <a href="#" data-view="method" data-i18n="nav.method">Method</a>
+  </nav>
+
+  <div class="nav-actions">
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt is-on" data-l="en">EN</span>
+      <span class="lt-opt" data-l="bn">বাং</span>
+      <i class="lt-thumb"></i>
+    </button>
+    <button class="icon-btn" id="liteToggle" aria-pressed="false" title="Low-data mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+        <path d="M2 17a5 5 0 0 1 5-5 6 6 0 0 1 11.3 1.5A4 4 0 0 1 18 21H7a5 5 0 0 1-5-4Z" stroke-linejoin="round"/>
+        <path d="M12 12V4m0 0L9 7m3-3 3 3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="btn btn-primary btn-sm nav-cta" data-view="explore" data-i18n="nav.start">Start</button>
+    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ══════════════════════════ HOME ══════════════════════════ -->
+<section class="view is-active" id="view-home">
+
+  <section class="hero">
+    <div class="hero-visual" aria-hidden="true">
+      <div class="earth" id="earth">
+        <div class="earth-tex"><div class="tex"></div><div class="tex"></div></div>
+        <div class="earth-shade"></div>
+      </div>
+      <div class="orbit orbit-1"></div>
+      <div class="orbit orbit-2"></div>
+      <div class="hero-glow"></div>
+    </div>
+
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <div class="eyebrow reveal">
+          <span class="pulse-dot"></span>
+          <span data-i18n="hero.eyebrow">NASA Space Apps 2026 · The Next Frontier</span>
+        </div>
+
+        <h1 class="reveal" data-d="1">
+          <span data-i18n="hero.h1a">Your backyard has a</span><br>
+          <em class="grad-text" data-i18n="hero.h1b">climate story.</em>
+        </h1>
+
+        <p class="lede reveal" data-d="2" data-i18n="hero.lede">
+          Pick a place. Watch forty years of NASA satellite data show what actually changed there —
+          the river, the heat, the rain — explained in plain language, with evidence you can check yourself.
+        </p>
+
+        <div class="hero-cta reveal" data-d="3">
+          <button class="btn btn-primary" data-view="explore">
+            <span data-i18n="hero.cta1">Explore your place</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h13m0 0-5-5m5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="btn btn-ghost" data-view="quiz">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.4" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+            <span data-i18n="hero.cta2">Take the 60-second quiz</span>
+          </button>
+        </div>
+
+        <div class="hero-tags reveal" data-d="4">
+          <a class="htag htag-link" href="https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3.5 21 20H3z" stroke-linejoin="round"/><path d="M12 9.5v4.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg>
+            <span data-i18n="hero.challenge">Challenge · Be an Earth System Trend Detective</span>
+            <svg class="htag-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <span class="htag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17" stroke-linecap="round"/></svg>
+            <span data-i18n="hero.event">Bangladesh Local Events · 13–14 November 2026</span>
+          </span>
+        </div>
+
+        <dl class="hero-stats reveal" data-d="5">
+          <div><dt data-i18n="hero.s1v">1981 → 2024</dt><dd data-i18n="hero.s1l">NASA data span</dd></div>
+          <div><dt data-i18n="hero.s2v">4</dt><dd data-i18n="hero.s2l">Pilot sites</dd></div>
+          <div><dt data-i18n="hero.s3v">+1.28 °C</dt><dd data-i18n="hero.s3l">Global 2024 anomaly</dd></div>
+          <div><dt data-i18n="hero.s4v">96</dt><dd data-i18n="hero.s4l">Trend tests run</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </section>
+
+  <!-- ── PROBLEM ── -->
+  <section class="section" id="problem">
+    <div class="wrap">
+      <div class="split">
+        <div class="split-head">
+          <div class="eyebrow eyebrow-line reveal" data-i18n="problem.eyebrow">The problem</div>
+          <h2 class="reveal" data-i18n="problem.h2">Climate change is taught as a planet.<br>People live in a <em>place</em>.</h2>
+        </div>
+        <div class="split-body">
+          <p class="big reveal" data-d="1" data-i18n="problem.p1">
+            Global averages are true, and almost useless in a classroom in Satkhira.
+            A student there does not feel 1.28 °C. They feel a hotter September, a river that
+            moved two hundred metres, a monsoon that arrives late.
+          </p>
+          <p class="reveal" data-d="2" data-i18n="problem.p2">
+            Most climate tools are English-first, data-heavy, and assume fast internet and a
+            technical background. The people who will live with the consequences longest have
+            the fewest tools to understand what is happening where they stand.
+          </p>
+          <div class="callout reveal" data-d="3">
+            <div class="callout-bar"></div>
+            <p data-i18n="problem.callout">So we built the opposite: a local, plain-language, low-bandwidth app where every claim is traceable to a NASA dataset — and where the app is allowed to say <strong>“we don't know yet.”</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="section section-alt" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow eyebrow-line reveal" data-i18n="how.eyebrow">How it works</div>
+        <h2 class="reveal" data-d="1" data-i18n="how.h2">Five steps from a pin on a map to a story you can argue with.</h2>
+      </div>
+
+      <ol class="steps">
+        <li class="step reveal" data-d="1">
+          <div class="step-num">01</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6"/></svg>
+          </div>
+          <h3 data-i18n="how.s1t">Choose your place</h3>
+          <p data-i18n="how.s1p">Search a village, town or district — or drop a pin anywhere on Earth. Your coordinates stay visible on every card.</p>
+        </li>
+        <li class="step reveal" data-d="2">
+          <div class="step-num">02</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M12 4.5v15" stroke-dasharray="2 2.4"/><path d="M8 11l-2 1 2 1M16 11l2 1-2 1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 data-i18n="how.s2t">See the change</h3>
+          <p data-i18n="how.s2p">A before-and-after slider compares satellite imagery of the same ground, in the same season, years apart.</p>
+        </li>
+        <li class="step reveal" data-d="3">
+          <div class="step-num">03</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17.5 8 11l4 3.2L21 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 data-i18n="how.s3t">Understand the trend</h3>
+          <p data-i18n="how.s3p">A Theil–Sen slope with a 95% interval shows how fast September is warming — and whether the signal is real.</p>
+        </li>
+        <li class="step reveal" data-d="4">
+          <div class="step-num">04</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 9h6v6H9z" stroke-linejoin="round"/><circle cx="12" cy="12" r="9.2"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <h3 data-i18n="how.s4t">Learn by playing</h3>
+          <p data-i18n="how.s4p">Guess which image is from 2000. Find the month that warmed the most. Learning that actually sticks.</p>
+        </li>
+        <li class="step reveal" data-d="5">
+          <div class="step-num">05</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke-linecap="round"/><circle cx="12" cy="12" r="3.6"/></svg>
+          </div>
+          <h3 data-i18n="how.s5t">Take action</h3>
+          <p data-i18n="how.s5p">Practical, local steps for students, schools and families — sized to what one person can actually do.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── LIVE PEEK ── -->
+  <section class="section" id="peek">
+    <div class="wrap">
+      <div class="section-head section-head--row">
+        <div>
+          <div class="eyebrow eyebrow-line reveal" data-i18n="peek.eyebrow">Live NASA imagery</div>
+          <h2 class="reveal" data-d="1" data-i18n="peek.h2">Drag the handle. Watch the delta move.</h2>
+        </div>
+        <p class="section-sub reveal" data-d="2" data-i18n="peek.sub">
+          Meghna estuary, Bhola. Same mid-November week, twenty-four years apart,
+          streamed live from NASA GIBS. No API key, no download.
+        </p>
+      </div>
+
+      <div class="peek-card reveal" data-d="2">
+        <div class="ba" id="homeBa" style="--pos:50%">
+          <img class="ba-img ba-after" alt="Satellite view of Bhola, 2024">
+          <div class="ba-before"><img class="ba-img ba-before-img" alt="Satellite view of Bhola, 2000"></div>
+          <div class="ba-line"></div>
+          <div class="ba-handle"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 7 5 12l4 5M15 7l4 5-4 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+          <div class="ba-tag ba-tag-l">2000</div>
+          <div class="ba-tag ba-tag-r">2024</div>
+          <div class="ba-skel"><i></i><i></i><i></i></div>
+        </div>
+        <div class="peek-foot">
+          <div class="peek-meta">
+            <span class="chip">MODIS Terra · True colour</span>
+            <span class="chip">15 Nov 2000 → 15 Nov 2024</span>
+            <span class="chip chip-mute">250 m / pixel</span>
+          </div>
+          <button class="btn btn-primary btn-sm" data-view="explore" data-i18n="peek.cta">Open the full explorer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NASA DATA ── -->
+  <section class="section section-alt" id="data">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow eyebrow-line reveal" data-i18n="data.eyebrow">The data underneath</div>
+        <h2 class="reveal" data-d="1" data-i18n="data.h2">Four open NASA products. Nothing proprietary, nothing hidden.</h2>
+      </div>
+      <div class="data-grid">
+        <article class="data-card reveal" data-d="1">
+          <div class="data-mono">GIBS</div>
+          <h3>Global Imagery Browse Services</h3>
+          <p data-i18n="data.d1">Historical true-colour and false-colour satellite imagery, served as map tiles. No key, no login, works in a browser.</p>
+          <span class="data-tag">Imagery</span>
+        </article>
+        <article class="data-card reveal" data-d="2">
+          <div class="data-mono">POWER</div>
+          <h3>Prediction Of Worldwide Energy Resources</h3>
+          <p data-i18n="data.d2">Location-specific temperature and rainfall from 1981 to present, from a latitude and longitude alone. Model-based reanalysis.</p>
+          <span class="data-tag">Time series</span>
+        </article>
+        <article class="data-card reveal" data-d="3">
+          <div class="data-mono">GISTEMP</div>
+          <h3>Goddard Institute Surface Temperature</h3>
+          <p data-i18n="data.d3">The global land–ocean temperature anomaly, so a local story can be placed honestly in planetary context.</p>
+          <span class="data-tag">Context</span>
+        </article>
+        <article class="data-card reveal" data-d="4">
+          <div class="data-mono">LANDSAT</div>
+          <h3>Landsat &amp; OPERA surface water</h3>
+          <p data-i18n="data.d4">Forty years of 30-metre surface change, plus radar-derived flood-water maps for the years they cover.</p>
+          <span class="data-tag">Surface change</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY DIFFERENT ── -->
+  <section class="section" id="why">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow eyebrow-line reveal" data-i18n="why.eyebrow">Why this is different</div>
+        <h2 class="reveal" data-d="1" data-i18n="why.h2">Most climate apps show you a number. This one shows you the receipt.</h2>
+      </div>
+      <div class="why-grid">
+        <article class="why-card reveal" data-d="1">
+          <div class="why-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2" stroke-linecap="round"/></svg>
+          </div>
+          <h3 data-i18n="why.w1t">Hyperlocal, not global</h3>
+          <p data-i18n="why.w1p">Your coordinates, your grid cell, your September. A global average has never told anyone what happened in their own field.</p>
+        </article>
+        <article class="why-card reveal" data-d="2">
+          <div class="why-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l4 4v14H6z" stroke-linejoin="round"/><path d="M14.5 3v4.5H19" stroke-linejoin="round"/><path d="M9 12.5h7M9 16h5" stroke-linecap="round"/></svg>
+          </div>
+          <h3 data-i18n="why.w2t">Evidence you can audit</h3>
+          <p data-i18n="why.w2p">Every number opens an Evidence Passport: source, period, sample size, method, uncertainty and caveat. Nothing is asserted without a trace.</p>
+        </article>
+        <article class="why-card reveal" data-d="3">
+          <div class="why-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3.5 21 20H3z" stroke-linejoin="round"/><path d="M12 9.5v4.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <h3 data-i18n="why.w3t">Honest about uncertainty</h3>
+          <p data-i18n="why.w3p">When the data cannot support a claim, the app says “no reliable conclusion yet.” That is a feature, not a failure.</p>
+        </article>
+        <article class="why-card reveal" data-d="4">
+          <div class="why-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 15.5a3.5 3.5 0 0 1 3.5-3.5 4.2 4.2 0 0 1 8 1A2.8 2.8 0 0 1 18 18.5H7a3 3 0 0 1-3-3Z" stroke-linejoin="round"/><path d="M12 13V6m0 0-2.5 2.5M12 6l2.5 2.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 12 9.5)"/></svg>
+          </div>
+          <h3 data-i18n="why.w4t">Built for a weak signal</h3>
+          <p data-i18n="why.w4p">Static data cards, compressed imagery and a lite mode. No 3D globe to download. It opens on a slow phone in a classroom.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── IMPACT CTA ── -->
+  <section class="section section-cta">
+    <div class="wrap">
+      <div class="cta-panel reveal">
+        <div class="cta-glow"></div>
+        <div class="cta-inner">
+          <div class="eyebrow" data-i18n="cta.eyebrow">Start with one place</div>
+          <h2 data-i18n="cta.h2">Pick your own coordinates.<br>The story is already in the archive.</h2>
+          <p data-i18n="cta.p">Four pilot sites have complete NASA coverage today. The same method works for any place on Earth that the satellites can see.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" data-view="explore" data-i18n="cta.b1">Explore your place</button>
+            <button class="btn btn-ghost btn-lg" data-view="method" data-i18n="cta.b2">Read the method</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ══════════════════════════ EXPLORE ══════════════════════════ -->
+<section class="view" id="view-explore">
+  <div class="app-shell">
+    <aside class="rail" id="rail">
+      <div class="rail-head">
+        <div class="eyebrow eyebrow-line" data-i18n="ex.eyebrow">Location</div>
+        <h2 data-i18n="ex.h2">Choose a place</h2>
+        <p data-i18n="ex.p">Pilot sites carry full validated NASA coverage. You can also drop a pin anywhere.</p>
+      </div>
+
+      <div class="rail-map" id="railMap" aria-label="Map of pilot sites"></div>
+
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4" stroke-linecap="round"/></svg>
+        <input id="placeSearch" type="search" placeholder="Search Dhaka, Satkhira, Sylhet, Bhola…" aria-label="Search a place">
+      </div>
+
+      <div class="site-list" id="siteList"></div>
+
+      <div class="rail-sub" data-i18n="ex.coords">Or use coordinates</div>
+      <div class="coord-row">
+        <label><span>LAT</span><input id="latInput" value="23.8103" inputmode="decimal"></label>
+        <label><span>LON</span><input id="lonInput" value="90.4125" inputmode="decimal"></label>
+        <button class="btn btn-sm btn-outline" id="coordGo">Go</button>
+      </div>
+
+      <div class="rail-sub" data-i18n="ex.imagery">Imagery layer</div>
+      <div class="seg" id="layerSeg">
+        <button data-layer="true" class="is-on" data-i18n="ex.true">True colour</button>
+        <button data-layer="false" data-i18n="ex.false">False colour</button>
+      </div>
+      <p class="rail-note" data-i18n="ex.note">False colour (bands 7-2-1) makes water and vegetation separate sharply — the view analysts use to trace a shifting river.</p>
+
+      <div class="rail-foot">
+        <div class="mini-legend">
+          <span><i class="lg-ember"></i> Warming</span>
+          <span><i class="lg-aurora"></i> Significant</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="stage" id="stage">
+      <div class="loc-head">
+        <div class="loc-title">
+          <div class="loc-badges">
+            <span class="badge badge-live"><i></i><span data-i18n="ex.live">Live NASA feed</span></span>
+            <span class="badge" id="locKind">Mega-delta capital</span>
+          </div>
+          <h1 id="locName">Dhaka</h1>
+          <div class="loc-coords">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4"/></svg>
+            <span id="locCoords">23.8103° N, 90.4125° E</span>
+          </div>
+        </div>
+        <div class="loc-score">
+          <div class="score-label" data-i18n="ex.septTrend">September trend</div>
+          <div class="score-val" id="locTrend">+0.43 °C<span>/decade</span></div>
+          <div class="score-conf" id="locConf">q = 0.0014 · significant</div>
+        </div>
+      </div>
+
+      <div class="slider-card">
+        <div class="ba ba-main" id="mainBa" style="--pos:50%">
+          <img class="ba-img ba-after" alt="">
+          <div class="ba-before"><img class="ba-img ba-before-img" alt=""></div>
+          <div class="ba-line"></div>
+          <div class="ba-handle"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 7 5 12l4 5M15 7l4 5-4 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+          <div class="ba-tag ba-tag-l" id="tagL">2000</div>
+          <div class="ba-tag ba-tag-r" id="tagR">2024</div>
+          <div class="ba-skel"><i></i><i></i><i></i></div>
+          <div class="ba-compass">
+            <span class="cmp-n">N</span>
+            <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/><path d="M20 7 24 20 20 33 16 20Z" fill="currentColor" opacity=".85"/></svg>
+          </div>
+          <div class="ba-scale"><i></i><span>5 km</span></div>
+        </div>
+        <div class="slider-foot">
+          <div class="slider-meta">
+            <span class="chip" id="chipLayer">MODIS Terra · True colour</span>
+            <span class="chip" id="chipDates">15 Nov 2000 → 15 Nov 2024</span>
+          </div>
+          <div class="slider-actions">
+            <button class="mini-btn" id="baReset" title="Reset handle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 1 0 2.6-5.9" stroke-linecap="round"/><path d="M4 4v4.5h4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i18n="ex.reset">Reset</span>
+            </button>
+            <button class="mini-btn" id="baFull" title="Fullscreen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i18n="ex.expand">Expand</span>
+            </button>
+          </div>
+        </div>
+        <p class="slider-caption" data-i18n="ex.caption">
+          Same week of the year, cloud-screened. Seasonal matching matters: comparing a monsoon month with a dry month
+          would show a difference in weather, not climate.
+        </p>
+      </div>
+
+      <div class="chart-grid">
+        <article class="card chart-card">
+          <header class="card-head">
+            <div>
+              <h3 data-i18n="ex.tempTitle">September temperature</h3>
+              <p class="card-sub" id="tempSub">2001 – 2024 · NASA POWER MERRA-2</p>
+            </div>
+            <span class="stat-pill stat-ember" id="tempPill">+0.43 °C / decade</span>
+          </header>
+          <div class="chart-host" id="tempChart"></div>
+          <footer class="card-foot">
+            <span class="dot-legend"><i class="lg-ember"></i><span data-i18n="ex.obs">Observed</span></span>
+            <span class="dot-legend"><i class="lg-dash"></i><span data-i18n="ex.trend">Theil–Sen trend</span></span>
+            <span class="dot-legend"><i class="lg-band"></i><span data-i18n="ex.band">95% interval</span></span>
+          </footer>
+        </article>
+
+        <article class="card chart-card">
+          <header class="card-head">
+            <div>
+              <h3 data-i18n="ex.rainTitle">Annual rainfall</h3>
+              <p class="card-sub" id="rainSub">1985 – 2024 · modelled estimate</p>
+            </div>
+            <span class="stat-pill stat-mute" id="rainPill">3,046 mm in 2024</span>
+          </header>
+          <div class="chart-host" id="rainChart"></div>
+          <footer class="card-foot card-foot--warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3.5 21 20H3z" stroke-linejoin="round"/><path d="M12 9.5v4.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg>
+            <span data-i18n="ex.rainWarn">Step changes here are a data-quality lead, not a climate conclusion. See the method page.</span>
+          </footer>
+        </article>
+      </div>
+
+      <article class="meaning-card" id="meaningCard">
+        <div class="meaning-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3a6 6 0 0 0-3.6 10.8c.5.4.8 1 .9 1.6l.1.6h5.2l.1-.6c.1-.6.4-1.2.9-1.6A6 6 0 0 0 12 3Z" stroke-linejoin="round"/><path d="M9.8 19h4.4M10.6 21.2h2.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="meaning-body">
+          <div class="eyebrow" data-i18n="ex.meaningEyebrow">In plain language</div>
+          <p class="meaning-text" id="meaningText"></p>
+        </div>
+        <div class="meaning-chip">
+          <span class="mc-num" id="meaningNum">+0.43</span>
+          <span class="mc-unit" data-i18n="ex.decade">°C per decade</span>
+        </div>
+      </article>
+
+      <div class="passport" id="passport">
+        <div class="pp-head">
+          <div class="pp-title">
+            <span class="pp-stamp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12.5 4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div>
+              <h3 data-i18n="pp.title">Evidence Passport</h3>
+              <p data-i18n="pp.sub">Every claim in this story carries its own paperwork.</p>
+            </div>
+          </div>
+          <span class="pp-status" id="ppStatus" data-i18n="pp.status">Passed quality checks</span>
+        </div>
+        <div class="pp-grid" id="ppGrid"></div>
+        <div class="pp-caveat">
+          <span class="pp-caveat-label" data-i18n="pp.caveatLabel">Caveat</span>
+          <p id="ppCaveat"></p>
+        </div>
+      </div>
+
+      <article class="card global-card">
+        <header class="card-head">
+          <div>
+            <h3 data-i18n="ex.globalTitle">Global context</h3>
+            <p class="card-sub" data-i18n="ex.globalSub">NASA GISTEMP v4 · anomaly vs 1951–1980</p>
+          </div>
+          <span class="stat-pill stat-ember">+1.28 °C in 2024</span>
+        </header>
+        <div class="chart-host chart-host--short" id="globalChart"></div>
+        <p class="card-note" data-i18n="ex.globalNote">
+          This is context, not a number to subtract. The GISTEMP anomaly uses a different baseline and a different
+          spatial scale than the absolute POWER temperature at your coordinates.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ TREND LAB ══════════════════════════ -->
+<section class="view" id="view-trend">
+  <div class="wrap view-pad">
+    <div class="view-head">
+      <div class="eyebrow eyebrow-line" data-i18n="tl.eyebrow">Trend lab</div>
+      <h1 data-i18n="tl.h1">Twelve months. Four places. Which one is actually changing?</h1>
+      <p class="lede" data-i18n="tl.lede">
+        Annual averages hide the story. This grid runs a separate Theil–Sen trend for every calendar month at every
+        pilot site, then corrects all 48 p-values together with Benjamini–Hochberg. Hover any cell.
+      </p>
+    </div>
+
+    <div class="tl-toolbar">
+      <div class="seg seg-lg" id="periodSeg">
+        <button data-period="1985" data-i18n="tl.p1">1985 – 2024</button>
+        <button data-period="2001" class="is-on" data-i18n="tl.p2">2001 – 2024</button>
+      </div>
+      <div class="tl-legend">
+        <span class="tl-leg-label">Cooler</span>
+        <div class="tl-ramp"></div>
+        <span class="tl-leg-label">Warmer</span>
+        <span class="tl-sig-key"><i></i> q &lt; 0.05</span>
+      </div>
+    </div>
+
+    <div class="heat-wrap">
+      <div class="heat" id="heatmap"></div>
+      <div class="heat-detail" id="heatDetail">
+        <div class="hd-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <p data-i18n="tl.hover">Hover a cell to inspect the test.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-notes">
+      <article class="note-card reveal">
+        <h3 data-i18n="tl.n1t">Why September</h3>
+        <p data-i18n="tl.n1p">In the 2001–2024 window, September is the only month that warms significantly at all four sites. That is a lead worth chasing, not a conclusion.</p>
+      </article>
+      <article class="note-card reveal" data-d="1">
+        <h3 data-i18n="tl.n2t">Why correct 48 tests</h3>
+        <p data-i18n="tl.n2p">Run enough tests and something will look significant by luck. The q-value asks: after accounting for all 48 attempts, is this still surprising?</p>
+      </article>
+      <article class="note-card reveal" data-d="2">
+        <h3 data-i18n="tl.n3t">Why the 40-year view disagrees</h3>
+        <p data-i18n="tl.n3p">The 1985–2024 window shows apparent cooling for several months. That is a reanalysis artefact signal, not evidence of a colder Bangladesh. We show it rather than hide it.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ QUIZ ══════════════════════════ -->
+<section class="view" id="view-quiz">
+  <div class="wrap view-pad quiz-wrap">
+    <div class="quiz-intro" id="quizIntro">
+      <div class="eyebrow eyebrow-line" data-i18n="qz.eyebrow">Learn by playing</div>
+      <h1 data-i18n="qz.h1">Can you spot forty years of change?</h1>
+      <p class="lede" data-i18n="qz.lede">
+        Six questions. Real NASA imagery, real trend tests. No account, no download,
+        and every answer explains itself.
+      </p>
+      <div class="quiz-start-grid">
+        <div class="qs-item"><span>6</span><p data-i18n="qz.q1">Questions</p></div>
+        <div class="qs-item"><span>~60s</span><p data-i18n="qz.q2">To finish</p></div>
+        <div class="qs-item"><span>0 KB</span><p data-i18n="qz.q3">Extra download</p></div>
+      </div>
+      <button class="btn btn-primary btn-lg" id="quizStart" data-i18n="qz.start">Start the quiz</button>
+    </div>
+
+    <div class="quiz-stage" id="quizStage" hidden>
+      <div class="quiz-top">
+        <div class="quiz-progress"><i id="quizBar"></i></div>
+        <div class="quiz-meta">
+          <span id="quizCounter">1 / 6</span>
+          <span class="quiz-score" id="quizScore">0 pts</span>
+        </div>
+      </div>
+      <div class="quiz-body" id="quizBody"></div>
+    </div>
+
+    <div class="quiz-result" id="quizResult" hidden></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ ACT ══════════════════════════ -->
+<section class="view" id="view-act">
+  <div class="wrap view-pad">
+    <div class="view-head">
+      <div class="eyebrow eyebrow-line" data-i18n="act.eyebrow">Take action</div>
+      <h1 data-i18n="act.h1">What can one student in a delta actually do?</h1>
+      <p class="lede" data-i18n="act.lede">
+        Not “save the planet.” Smaller than that, and more useful: things that work in a school with
+        one fan, a shared phone and a monsoon outside.
+      </p>
+    </div>
+
+    <div class="act-filters">
+      <button class="chip-btn is-on" data-filter="all" data-i18n="act.f0">Everything</button>
+      <button class="chip-btn" data-filter="home" data-i18n="act.f1">At home</button>
+      <button class="chip-btn" data-filter="school" data-i18n="act.f2">At school</button>
+      <button class="chip-btn" data-filter="community" data-i18n="act.f3">In your community</button>
+    </div>
+
+    <div class="act-grid" id="actGrid"></div>
+
+    <div class="pledge-bar">
+      <div class="pledge-left">
+        <span class="pledge-num" id="pledgeNum">0</span>
+        <span class="pledge-txt" data-i18n="act.pledge">steps you have committed to</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="pledgeReset" data-i18n="act.reset">Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ TEACHERS ══════════════════════════ -->
+<section class="view" id="view-teach">
+  <div class="wrap view-pad">
+    <div class="view-head">
+      <div class="eyebrow eyebrow-line" data-i18n="tc.eyebrow">For teachers</div>
+      <h1 data-i18n="tc.h1">A ready-made classroom investigation. No equipment required.</h1>
+      <p class="lede" data-i18n="tc.lede">
+        Pick two or more pilot sites and this page builds a comparison table your class can read,
+        question and argue with. Print it, or project it.
+      </p>
+    </div>
+
+    <div class="teach-grid">
+      <article class="card teach-card">
+        <header class="card-head">
+          <div>
+            <h3 data-i18n="tc.build">Build a comparison</h3>
+            <p class="card-sub" data-i18n="tc.buildSub">Select the sites you want to compare.</p>
+          </div>
+        </header>
+        <div class="teach-picker" id="teachPicker"></div>
+        <div class="teach-out" id="teachOut"></div>
+        <button class="btn btn-outline btn-sm" id="printBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 9V3.5h10V9" stroke-linejoin="round"/><rect x="3.5" y="9" width="17" height="7.5" rx="1.6"/><path d="M7 14h10v6.5H7z" stroke-linejoin="round"/></svg>
+          <span data-i18n="tc.print">Print / save as PDF</span>
+        </button>
+      </article>
+
+      <article class="card lesson-card">
+        <header class="card-head">
+          <div>
+            <h3 data-i18n="tc.lesson">Lesson plan · 3 × 45 minutes</h3>
+            <p class="card-sub" data-i18n="tc.lessonSub">Grades 6–10. Works offline after one load.</p>
+          </div>
+        </header>
+        <ol class="lesson">
+          <li>
+            <div class="ls-num">1</div>
+            <div>
+              <h4 data-i18n="tc.l1t">Where do you actually live?</h4>
+              <p data-i18n="tc.l1p">Students find their own district on the map and write down its coordinates. Discuss: why does a coordinate matter more than a country name?</p>
+              <span class="ls-tag">Observation</span>
+            </div>
+          </li>
+          <li>
+            <div class="ls-num">2</div>
+            <div>
+              <h4 data-i18n="tc.l2t">Read the image pair</h4>
+              <p data-i18n="tc.l2p">In pairs, students list three things that changed between the two dates and one thing they cannot tell from the image alone.</p>
+              <span class="ls-tag">Inference</span>
+            </div>
+          </li>
+          <li>
+            <div class="ls-num">3</div>
+            <div>
+              <h4 data-i18n="tc.l3t">Is the trend real?</h4>
+              <p data-i18n="tc.l3p">Show the chart, then the q-value. Ask: what would make you doubt this line? Introduce uncertainty as a tool, not a weakness.</p>
+              <span class="ls-tag">Evidence</span>
+            </div>
+          </li>
+        </ol>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ METHOD ══════════════════════════ -->
+<section class="view" id="view-method">
+  <div class="wrap view-pad">
+    <div class="view-head">
+      <div class="eyebrow eyebrow-line" data-i18n="mt.eyebrow">Method &amp; limitations</div>
+      <h1 data-i18n="mt.h1">How we know, and where we stop knowing.</h1>
+      <p class="lede" data-i18n="mt.lede">
+        A climate claim is only as good as its paperwork. This page is the paperwork.
+      </p>
+    </div>
+
+    <div class="method-grid">
+      <article class="m-card m-card--wide">
+        <div class="m-num">01</div>
+        <h3 data-i18n="mt.m1t">The question</h3>
+        <p data-i18n="mt.m1p">Has September near-surface air temperature changed across different geographic settings in Bangladesh from 2001 to 2024 — and does the pattern survive a check for data quality and multiple testing?</p>
+      </article>
+      <article class="m-card">
+        <div class="m-num">02</div>
+        <h3 data-i18n="mt.m2t">Retrieve</h3>
+        <p data-i18n="mt.m2p">NASA POWER monthly <code>T2M</code> and <code>PRECTOTCORR</code>, 1985–2024, at four pilot coordinates. 1,920 monthly records, raw units preserved.</p>
+      </article>
+      <article class="m-card">
+        <div class="m-num">03</div>
+        <h3 data-i18n="mt.m3t">Estimate</h3>
+        <p data-i18n="mt.m3p">Theil–Sen slope in °C per decade, with a 95% bootstrap interval. Robust to outliers in a way an ordinary least-squares fit is not.</p>
+      </article>
+      <article class="m-card">
+        <div class="m-num">04</div>
+        <h3 data-i18n="mt.m4t">Test</h3>
+        <p data-i18n="mt.m4p">Kendall rank correlation for monotonic trend, then Benjamini–Hochberg across all 48 site–month combinations per period.</p>
+      </article>
+      <article class="m-card">
+        <div class="m-num">05</div>
+        <h3 data-i18n="mt.m5t">Challenge it</h3>
+        <p data-i18n="mt.m5p">Repeat with a second start year. Inspect the 1985–2024 window for discontinuities. Compare against an independent record before publishing.</p>
+      </article>
+    </div>
+
+    <div class="dq-panel">
+      <div class="dq-head">
+        <span class="badge badge-warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5 21 20H3z" stroke-linejoin="round"/><path d="M12 9.5v4.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg>
+          <span data-i18n="mt.dqBadge">Data-quality finding</span>
+        </span>
+        <h2 data-i18n="mt.dqH">The 40-year comparison does not say what it looks like it says.</h2>
+      </div>
+      <p class="dq-p" data-i18n="mt.dqP">
+        Comparing 1985–1994 with 2015–2024 in the raw NASA POWER series implies <em>cooling</em> at all four
+        sites, alongside implausibly large rainfall increases. For Dhaka, the ten-year mean shifts from
+        about 26.49 °C to 25.51 °C, while modelled annual rainfall moves from roughly 1,101 mm to 2,809 mm.
+      </p>
+      <div class="dq-table" id="dqTable"></div>
+      <p class="dq-p dq-p--small" data-i18n="mt.dqP2">
+        Those numbers are arithmetically correct outputs from the downloaded data. They are not an established
+        forty-year climate trend. Reanalysis depends on changing input observations, model versions and correction
+        procedures, and the series shows step changes consistent with product transitions. Until that is resolved
+        against independent observations, the app reports <strong>no reliable conclusion yet</strong> for this window.
+      </p>
+    </div>
+
+    <div class="limits-grid">
+      <article class="limit-card">
+        <h3 data-i18n="mt.lim1">What this app does not claim</h3>
+        <ul>
+          <li data-i18n="mt.lim1a">That any observed river movement was caused by global climate change.</li>
+          <li data-i18n="mt.lim1b">That POWER values are thermometer readings at your house.</li>
+          <li data-i18n="mt.lim1c">That a two-date image pair is a time series.</li>
+          <li data-i18n="mt.lim1d">That Bangladesh results generalise to every delta on Earth.</li>
+        </ul>
+      </article>
+      <article class="limit-card">
+        <h3 data-i18n="mt.lim2">Known limitations</h3>
+        <ul>
+          <li data-i18n="mt.lim2a">POWER is modelled reanalysis on a coarse grid, not a station measurement.</li>
+          <li data-i18n="mt.lim2b">MODIS true colour begins in 2000; a true 1980s pair needs Landsat.</li>
+          <li data-i18n="mt.lim2c">Monsoon cloud cover removes usable scenes from many dates.</li>
+          <li data-i18n="mt.lim2d">Serial autocorrelation has not yet been fully corrected for.</li>
+        </ul>
+      </article>
+    </div>
+
+    <!-- NASA DATA SOURCES USED -->
+    <section class="ds-block">
+      <div class="ds-head">
+        <div class="eyebrow eyebrow-line" data-i18n="mt.dsEyebrow">NASA data sources used</div>
+        <h2 data-i18n="mt.dsH">Every dataset we used, what we used it for, and how it reaches the app.</h2>
+      </div>
+      <div class="ds-table">
+        <div class="ds-row ds-row-head">
+          <span data-i18n="mt.dsC1">Dataset</span>
+          <span data-i18n="mt.dsC2">What we used it for</span>
+          <span data-i18n="mt.dsC3">How it reaches the app</span>
+        </div>
+        <div class="ds-row">
+          <span class="ds-name">NASA POWER<br><em>MERRA-2 · T2M, PRECTOTCORR</em></span>
+          <span data-i18n="mt.ds1a">Location-specific temperature and rainfall trends, 1985–2024, and the 96 Theil–Sen tests behind every chart.</span>
+          <span data-i18n="mt.ds1b">Monthly point API. Bundled offline for the four pilot sites, fetched live for any other coordinate.</span>
+        </div>
+        <div class="ds-row">
+          <span class="ds-name">NASA GIBS<br><em>MODIS Terra · true colour, 7-2-1</em></span>
+          <span data-i18n="mt.ds2a">Before-and-after satellite imagery, matched to the same week of the year, 2000 versus 2024.</span>
+          <span data-i18n="mt.ds2b">WMS GetMap requests rendered straight in the browser. No API key, no login.</span>
+        </div>
+        <div class="ds-row">
+          <span class="ds-name">NASA GISTEMP v4<br><em>Land–ocean anomaly</em></span>
+          <span data-i18n="mt.ds3a">Planetary context, so a local story can be placed against the global record without conflating the two.</span>
+          <span data-i18n="mt.ds3b">Annual series 1880–2025, bundled as a static file. Used as context only, never subtracted from local values.</span>
+        </div>
+        <div class="ds-row ds-row-planned">
+          <span class="ds-name">NASA Landsat 5 / 8–9<br><em>30 m surface reflectance</em></span>
+          <span data-i18n="mt.ds4a">Planned: a genuine 1980s-versus-now scene pair and measured water/land change in hectares.</span>
+          <span data-i18n="mt.ds4b">Not in this build. A true 1985 comparison needs Landsat, not MODIS, and requires an Earthdata login — listed here as future work, not claimed.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI DISCLOSURE -->
+    <section class="ai-block">
+      <div class="ai-head">
+        <span class="badge badge-ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="6" width="16" height="12" rx="3"/><path d="M9 12h.01M15 12h.01" stroke-linecap="round" stroke-width="2.4"/><path d="M12 3v3M8 21h8" stroke-linecap="round"/></svg>
+          <span data-i18n="mt.aiBadge">AI use disclosure</span>
+        </span>
+        <h2 data-i18n="mt.aiH">How we used AI — named, explained, and limited.</h2>
+        <p data-i18n="mt.aiP">Space Apps requires every AI tool in a solution to be declared, with its reasoning and the data it worked on. Here is ours, in full.</p>
+      </div>
+      <dl class="ai-grid">
+        <div class="ai-cell">
+          <dt data-i18n="mt.aiT1">Tool</dt>
+          <dd data-i18n="mt.aiD1">WorkBuddy AI, an agentic coding assistant, used for front-end implementation and copy drafting. No other generative AI is embedded in the product.</dd>
+        </div>
+        <div class="ai-cell">
+          <dt data-i18n="mt.aiT2">What it worked on</dt>
+          <dd data-i18n="mt.aiD2">Interface code, the SVG chart engine, layout and written copy. It did not generate any climate value, statistic or trend shown in the app.</dd>
+        </div>
+        <div class="ai-cell">
+          <dt data-i18n="mt.aiT3">Reasoning</dt>
+          <dd data-i18n="mt.aiD3">A 48-hour build rewards time spent on data validity over time spent on markup. AI compressed the implementation so the team could spend its hours on the statistics and the honesty checks.</dd>
+        </div>
+        <div class="ai-cell">
+          <dt data-i18n="mt.aiT4">Where the numbers come from</dt>
+          <dd data-i18n="mt.aiD4">Every figure is a calculation on NASA POWER and GISTEMP values, reproducible from the public repository. The Evidence Passport on each story shows the inputs.</dd>
+        </div>
+        <div class="ai-cell ai-cell--wide">
+          <dt data-i18n="mt.aiT5">Prompts and verification</dt>
+          <dd data-i18n="mt.aiD5">The working prompt log is kept with the project documentation. All generated output was reviewed line by line before commit, and no claim was accepted without a traceable calculation behind it.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- SUBMISSION -->
+    <section class="sub-block">
+      <div class="sub-head">
+        <div class="eyebrow eyebrow-line" data-i18n="mt.subEyebrow">Submission</div>
+        <h2 data-i18n="mt.subH">What judges need, in one place.</h2>
+      </div>
+      <div class="sub-grid" id="subGrid"></div>
+      <div class="sub-team" id="subTeam"></div>
+    </section>
+
+    <div class="sources">
+      <h2 data-i18n="mt.srcH">Primary sources</h2>
+      <ul id="sourceList"></ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════════════ FOOTER ══════════════════════════ -->
+<footer class="footer">
+  <div class="wrap footer-in">
+    <div class="foot-brand">
+      <div class="brand-mark brand-mark--lg">
+        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <circle cx="20" cy="20" r="11" stroke="currentColor" stroke-width="1.6" opacity=".9"/>
+          <ellipse cx="20" cy="20" rx="18" ry="7" stroke="url(#bg2)" stroke-width="1.5" transform="rotate(-24 20 20)"/>
+          <circle cx="33.5" cy="12.5" r="2.4" fill="#ff7a45"/>
+          <path d="M11 24.5c3.4-2.6 6.4-1.1 9.6-3.4 2.9-2.1 4.6-5.4 8.4-5.6" stroke="#2ee6c5" stroke-width="1.6" stroke-linecap="round"/>
+          <defs><linearGradient id="bg2" x1="2" y1="20" x2="38" y2="20"><stop stop-color="#2ee6c5"/><stop offset="1" stop-color="#8b7cf6"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div>
+        <strong>My Climate Story</strong>
+        <p data-i18n="ft.tag">Learning climate change through your own backyard.</p>
+      </div>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h4 data-i18n="ft.app">App</h4>
+        <a data-view="explore" href="#" data-i18n="nav.explore">Explore</a>
+        <a data-view="trend" href="#" data-i18n="nav.trend">Trend Lab</a>
+        <a data-view="quiz" href="#" data-i18n="nav.quiz">Quiz</a>
+        <a data-view="act" href="#" data-i18n="nav.act">Take action</a>
+      </div>
+      <div>
+        <h4 data-i18n="ft.about">About</h4>
+        <a data-view="teach" href="#" data-i18n="nav.teach">Teachers</a>
+        <a data-view="method" href="#" data-i18n="nav.method">Method</a>
+        <a id="footRepo" href="#" target="_blank" rel="noopener" hidden>GitHub repository</a>
+        <a id="footVideo" href="#" target="_blank" rel="noopener" hidden>Demo video</a>
+        <a href="https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/" target="_blank" rel="noopener" data-i18n="ft.challenge">Our challenge</a>
+      </div>
+      <div>
+        <h4 data-i18n="ft.data">Data</h4>
+        <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">NASA POWER</a>
+        <a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener">NASA GIBS</a>
+        <a href="https://data.giss.nasa.gov/gistemp/" target="_blank" rel="noopener">NASA GISTEMP</a>
+        <a href="https://science.nasa.gov/mission/landsat/" target="_blank" rel="noopener">NASA Landsat</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">
+    <span data-i18n="ft.credit">Built by Delta Detectives · NASA Space Apps Challenge 2026</span>
+    <span class="foot-event">
+      <b data-i18n="ft.theme">The Next Frontier</b>
+      <i>·</i>
+      <span data-i18n="ft.event">Bangladesh Local Events, 13–14 November 2026</span>
+      <i>·</i>
+      <span data-i18n="ft.retrieved">NASA data retrieved 23 October 2026</span>
+    </span>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/map.js"></script>
+<script src="js/power.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

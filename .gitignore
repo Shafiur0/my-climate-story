@@ -1,0 +1,35 @@
+# ── OS ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── editors ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+
+# ── Office temp / lock files ─────────────────────────────────────
+~$*
+*.tmp
+
+# ── Python (scripts/build_data.py) ───────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ── Node (only if tooling is added later — the app itself has none) ──
+node_modules/
+package-lock.json
+
+# ── local tooling and screenshots ────────────────────────────────
+.workbuddy-ai/
+.shots/
+.tmp_preview/
+
+# ── Vercel ───────────────────────────────────────────────────────
+.vercel
+
+# NOTE: the research workbook, report and guide in the repo root are
+# intentionally tracked — scripts/build_data.py reads the .xlsx directly.
