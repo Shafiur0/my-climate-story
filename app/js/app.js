@@ -18,7 +18,7 @@
      ══════════════════════════════════════════════════════════════ */
   const CONFIG = {
     // Public GitHub URL. Must open without a login — test it in a private window.
-    repo: '',
+    repo: 'https://github.com/Shafiur0/my-climate-story',
 
     // The 30-second final video, on YouTube or Vimeo (unlisted is fine).
     video: '',
