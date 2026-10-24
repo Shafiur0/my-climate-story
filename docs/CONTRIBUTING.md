@@ -200,10 +200,30 @@ The repo must be **public** — judges need to open it without a login.
 | | |
 |---|---|
 | Production | <https://my-climate-story.vercel.app> |
+| Repository | <https://github.com/Shafiur0/my-climate-story> |
 | Vercel project | `my-climate-story` |
 | Root directory | **`app`** — this is essential, the site is not at the repo root |
 | Build command | none (static) |
 | Output directory | `app` (the project root, once Root Directory is set) |
+
+> **Status:** deployed by CLI, not yet connected to Git. Until the Vercel GitHub App is installed
+> and the repo connected, pushes do **not** auto-deploy — run `vercel --prod` from `app/` after
+> changes. See *Connecting Git* below.
+
+### Connecting Git (auto-deploy)
+
+The project was created from the CLI, so Vercel does not yet know about the repository.
+
+1. Install the Vercel GitHub App: <https://github.com/apps/vercel> → **Install** → grant access to
+   `my-climate-story`
+2. Vercel dashboard → project **my-climate-story** → **Settings → Git → Connect Git Repository**
+3. Choose `Shafiur0/my-climate-story` and set **Root Directory** to `app`
+4. Confirm
+
+From then on every push to `main` deploys to production and pull requests get preview URLs.
+
+`vercel git connect <url>` fails with *"Make sure you have access to the repository"* until step 1
+is done — that error means the App is not installed, not that the URL is wrong.
 
 ### Vercel via the dashboard (recommended)
 
