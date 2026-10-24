@@ -178,19 +178,48 @@ climate misinformation gets shipped.
 
 The site is static. Publish `app/` — nothing else.
 
-**GitHub Pages**
+### Current deployment
 
-1. Settings → Pages → Source: *Deploy from a branch*
-2. Branch `main`, folder `/app` — or add a workflow that uploads `app/` as the artifact
-3. Wait for the build, open the URL, run the QA script against the live site
+| | |
+|---|---|
+| Production | <https://my-climate-story.vercel.app> |
+| Vercel project | `my-climate-story` |
+| Root directory | **`app`** — this is essential, the site is not at the repo root |
+| Build command | none (static) |
+| Output directory | `app` (the project root, once Root Directory is set) |
 
-**Netlify / Vercel** — publish directory `app`, no build command.
+### Vercel via the dashboard (recommended)
 
-After deploying, put the URL into `CONFIG.repo` (the GitHub link) and re-deploy so the footer and
-the submission block pick it up.
+1. **Add New → Project**, import this repository
+2. Set **Root Directory** to `app`
+3. Framework preset: **Other**. Build command: leave empty. Output directory: leave default
+4. Deploy
 
-> Test the repository link in a **private window** before you submit. Judges score it 0 or 1 and an
-> unauthenticated 404 costs a point.
+Every push to `main` then redeploys automatically. Pull requests get preview URLs.
+
+> ⚠️ If you forget to set Root Directory to `app`, the deployment succeeds but the URL returns
+> a 404 — Vercel serves the repo root, which has no `index.html`.
+
+### Vercel via CLI
+
+```bash
+cd app
+vercel link --project my-climate-story --yes
+vercel --prod
+```
+
+Useful for a quick deploy, but it does not create a git link, so pushes will not auto-deploy.
+
+### GitHub Pages (alternative)
+
+Settings → Pages → *Deploy from a branch* → `main`, folder `/app`.
+Both hosts work; Vercel is the one currently in use.
+
+### After deploying
+
+Put the repository URL into `CONFIG.repo` in `app/js/app.js` so the footer and the submission
+block link to it, then redeploy. Test that link in a **private window** — judges score repository
+access 0 or 1, and an unauthenticated 404 costs a point.
 
 ---
 

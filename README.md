@@ -3,6 +3,8 @@
 **NASA Space Apps Challenge 2026 · Bangladesh Local Events · 13–14 November 2026**
 Challenge: *Be an Earth System Trend Detective* · Theme: *The Next Frontier*
 
+**Live:** <https://my-climate-story.vercel.app> · **Source:** this repository
+
 Team **Delta Detectives** — a mobile-friendly web app that lets anyone pick a place on Earth and
 watch four decades of NASA satellite data tell them what actually changed there: the river, the
 heat, the rain. Plain language, low bandwidth, and an Evidence Passport behind every number.
